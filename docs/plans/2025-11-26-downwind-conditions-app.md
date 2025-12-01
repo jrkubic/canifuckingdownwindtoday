@@ -2019,7 +2019,7 @@ A snarky web app that tells you whether today is a good day for downwind SUP foi
 ### Prerequisites
 
 - Python 3.10+
-- Anthropic API key (for Claude)
+- Google Gemini API key (free tier)
 
 ### Installation
 
@@ -2045,9 +2045,9 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-5. Add your Anthropic API key to `.env`:
+5. Add your Google Gemini API key to `.env`:
 ```
-ANTHROPIC_API_KEY=your_actual_key_here
+GEMINI_API_KEY=your_actual_key_here
 CACHE_REFRESH_HOURS=2
 ```
 
@@ -2075,7 +2075,7 @@ pytest --cov=app tests/
 
 - **Weather Fetching**: NOAA API (primary) with fallback support
 - **Scoring**: Deterministic algorithm based on Jupiter, FL conditions
-- **AI Descriptions**: Claude API generates snarky commentary
+- **AI Descriptions**: Google Gemini API generates snarky commentary
 - **Caching**: 2-hour cache to minimize API calls and maximize speed
 - **UI**: NiceGUI with 90s HTML aesthetic
 
@@ -2095,7 +2095,7 @@ app/
 │   ├── foil_recommender.py  # Equipment recommendations
 │   └── models.py        # Rating data models
 ├── ai/
-│   └── llm_client.py    # Claude API client
+│   └── llm_client.py    # Gemini API client
 └── cache/
     └── manager.py       # Cache management
 
