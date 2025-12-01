@@ -10,6 +10,48 @@
 
 ---
 
+## Progress Tracker
+
+| Task | Description | Status | Notes |
+|------|-------------|--------|-------|
+| 1 | Project Setup & Dependencies | ✅ Complete | |
+| 2 | Configuration Module | ✅ Complete | |
+| 3 | Weather Data Models | ✅ Complete | |
+| 4 | NOAA Weather Fetcher | ✅ Complete | |
+| 5 | Weather Fetcher Orchestrator | ✅ Complete | |
+| 6 | Scoring Calculator - Basic Structure | ✅ Complete | |
+| 7 | SUP Foil Scoring Logic | ✅ Complete | Wind direction corrected |
+| 8 | Parawing Scoring Logic | ✅ Complete | |
+| 9 | Foil Recommendation Logic | ✅ Complete | |
+| 10 | LLM Client Interface | ✅ Complete | |
+| 11 | Cache Manager | ✅ Complete | |
+| 12 | Main Application Orchestrator | ✅ Complete | |
+| 13 | NiceGUI User Interface - Basic Structure | ⏳ Pending | |
+| 14 | UI Styling - 90s Aesthetic | ⏳ Pending | |
+| 15 | Environment Setup Documentation | ⏳ Pending | |
+| 16 | Integration Testing | ⏳ Pending | |
+| 17 | Error Handling & Robustness | ⏳ Pending | |
+| 18 | Final Testing & Verification | ⏳ Pending | |
+| 19 | Deployment Preparation | ⏳ Pending | |
+| 20 | Create .env and Final Verification | ⏳ Pending | |
+
+**Last Updated:** 2025-12-01
+**Tests:** 33 passing
+
+### Wind Direction Correction (Applied in Task 7)
+
+The original plan incorrectly specified East/ESE/SE as optimal wind directions. Jupiter FL's coast runs **North-South**, so for downwinding you want wind **parallel** to the coast.
+
+**Corrected configuration in `app/config.py`:**
+```python
+OPTIMAL_WIND_DIRECTIONS = ["N", "S"]        # Parallel to coast - best
+GOOD_WIND_DIRECTIONS = ["NE", "SE", "NW", "SW"]  # Diagonal - good
+OK_WIND_DIRECTIONS = ["NNE", "SSE", "NNW", "SSW", "ENE", "ESE", "WNW", "WSW"]  # Acceptable
+BAD_WIND_DIRECTIONS = ["E", "W"]            # Perpendicular to coast - bad
+```
+
+---
+
 ## Prerequisites
 
 Before starting, ensure you have:
