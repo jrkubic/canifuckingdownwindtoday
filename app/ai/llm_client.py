@@ -9,7 +9,7 @@ class LLMClient:
 
     def __init__(self, api_key: str):
         genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel("gemini-2.0-flash-exp")
+        self.model = genai.GenerativeModel("gemini-1.5-flash")
 
     def generate_description(
         self,
