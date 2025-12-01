@@ -107,6 +107,30 @@ tests/
 - User preferences
 - API/embeddable widget
 
+## Deployment
+
+### Heroku
+
+```bash
+heroku create canifuckingdownwindtoday
+heroku config:set GEMINI_API_KEY=your_key_here
+git push heroku main
+```
+
+### Railway
+
+1. Connect your GitHub repo to Railway
+2. Add environment variable: `GEMINI_API_KEY`
+3. Deploy
+
+### Fly.io
+
+```bash
+fly launch
+fly secrets set GEMINI_API_KEY=your_key_here
+fly deploy
+```
+
 ## License
 
 MIT
