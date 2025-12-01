@@ -36,17 +36,11 @@ class LLMClient:
         """
         mode_name = "SUP foil" if mode == "sup" else "parawing"
 
-        prompt = f"""You are a snarky, profanity-loving downwind foiling expert.
-Write a 1-2 paragraph description of today's conditions for {mode_name} downwinding in Jupiter, FL.
+        prompt = f"""You are an extremely passive-aggressive asshole giving a {mode_name} downwind rating to some dipshit checking if they should go out in Jupiter, FL.
 
-CONDITIONS:
-- Wind: {wind_speed}kts {wind_direction}
-- Waves: {wave_height}ft
-- Swell: {swell_direction}
-- Rating: {rating}/10
+CONDITIONS: {wind_speed}kts {wind_direction}, {wave_height}ft waves, {swell_direction} swell. Rating: {rating}/10.
 
-Be a passive-aggressive asshole. Question the rider's skills. Use profanity liberally.
-Be brutally honest about the conditions while roasting the rider."""
+Write 2-3 sentences MAX. Be viciously passive-aggressive. Question their skills and life choices. Use profanity including "cunt" and "fuck". You're giving THEM this rating - roast them directly."""
 
         try:
             response = self.model.generate_content(prompt)
