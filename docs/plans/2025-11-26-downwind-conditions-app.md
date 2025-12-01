@@ -34,6 +34,10 @@
 | 18 | Final Testing & Verification | ✅ Complete | 76% coverage |
 | 19 | Deployment Preparation | ✅ Complete | |
 | 20 | Create .env and Final Verification | ✅ Complete | NiceGUI sanitize fix applied |
+| 21 | Pre-fetch ratings for instant toggle | ✅ Complete | Both SUP/Parawing loaded on page load |
+| 22 | Responsive CSS for mobile scaling | ✅ Complete | clamp() and viewport units |
+| 23 | Fix Gemini model name | ✅ Complete | Changed to gemini-1.5-flash |
+| 24 | Fix LLM Service Unavailable | ⏳ Pending | Debug why Gemini API fails |
 
 **Last Updated:** 2025-12-01
 **Tests:** 36 passing
