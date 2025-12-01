@@ -93,28 +93,38 @@ def index():
 
         def update_display():
             """Update display based on toggle selection"""
-            mode = 'sup' if toggle.value == 'SUP Foil' else 'parawing'
+            try:
+                mode = 'sup' if toggle.value == 'SUP Foil' else 'parawing'
 
-            if mode == 'sup':
-                rating = orchestrator.get_sup_rating()
-            else:
-                rating = orchestrator.get_parawing_rating()
+                if mode == 'sup':
+                    rating = orchestrator.get_sup_rating()
+                else:
+                    rating = orchestrator.get_parawing_rating()
 
-            if rating:
-                rating_label.content = f'<div class="rating">{rating.score}/10</div>'
-                description_label.content = f'<div class="description">{rating.description}</div>'
-            else:
-                rating_label.content = '<div class="rating">N/A</div>'
-                description_label.content = '<div class="description">Weather data unavailable. Try again later.</div>'
+                if rating:
+                    rating_label.content = f'<div class="rating">{rating.score}/10</div>'
+                    description_label.content = f'<div class="description">{rating.description}</div>'
+                else:
+                    rating_label.content = '<div class="rating">N/A</div>'
+                    description_label.content = '<div class="description">Weather data unavailable. Try again later or just send it.</div>'
 
-            # Update foil recommendations
-            recommendations = orchestrator.get_foil_recommendations()
-            code_rec.content = f'<div class="rec-item">CODE: {recommendations["code"]}</div>'
-            kt_rec.content = f'<div class="rec-item">KT: {recommendations["kt"]}</div>'
+                # Update foil recommendations
+                try:
+                    recommendations = orchestrator.get_foil_recommendations()
+                    code_rec.content = f'<div class="rec-item">CODE: {recommendations["code"]}</div>'
+                    kt_rec.content = f'<div class="rec-item">KT: {recommendations["kt"]}</div>'
+                except Exception as e:
+                    code_rec.content = '<div class="rec-item">CODE: Error loading</div>'
+                    kt_rec.content = '<div class="rec-item">KT: Error loading</div>'
 
-            # Update timestamp
-            from datetime import datetime
-            timestamp_label.content = f'<div class="timestamp">Last updated: {datetime.now().strftime("%I:%M %p")}</div>'
+                # Update timestamp
+                from datetime import datetime
+                timestamp_label.content = f'<div class="timestamp">Last updated: {datetime.now().strftime("%I:%M %p")}</div>'
+
+            except Exception as e:
+                print(f"UI update error: {e}")
+                rating_label.content = '<div class="rating">ERROR</div>'
+                description_label.content = '<div class="description">Something broke. Try refreshing the page.</div>'
 
         # Update on toggle change
         toggle.on_value_change(lambda: update_display())

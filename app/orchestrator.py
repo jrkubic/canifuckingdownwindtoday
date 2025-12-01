@@ -73,35 +73,62 @@ class AppOrchestrator:
 
     def _generate_rating(self, mode: str) -> Optional[ConditionRating]:
         """Generate fresh rating for given mode"""
-        # Fetch weather
-        conditions = self.weather_fetcher.fetch_current_conditions(
-            Config.LOCATION_LAT,
-            Config.LOCATION_LON
+        try:
+            # Fetch weather
+            conditions = self.weather_fetcher.fetch_current_conditions(
+                Config.LOCATION_LAT,
+                Config.LOCATION_LON
+            )
+
+            if not conditions:
+                return self._create_fallback_rating(mode, "Weather data unavailable")
+
+            # Calculate score
+            if mode == "sup":
+                score = self.score_calculator.calculate_sup_score(conditions)
+            else:
+                score = self.score_calculator.calculate_parawing_score(conditions)
+
+            # Generate snarky description
+            try:
+                description = self.llm_client.generate_description(
+                    wind_speed=conditions.wind_speed_kts,
+                    wind_direction=conditions.wind_direction,
+                    wave_height=conditions.wave_height_ft,
+                    swell_direction=conditions.swell_direction,
+                    rating=score,
+                    mode=mode
+                )
+            except Exception as e:
+                print(f"LLM generation failed: {e}")
+                description = self._create_fallback_description(conditions, score, mode)
+
+            # Create rating
+            rating = ConditionRating(score=score, mode=mode, description=description)
+
+            # Cache it
+            self.cache.set_rating(mode, rating)
+
+            return rating
+
+        except Exception as e:
+            print(f"Error generating rating: {e}")
+            return self._create_fallback_rating(mode, f"Error: {str(e)}")
+
+    def _create_fallback_rating(self, mode: str, error_msg: str) -> ConditionRating:
+        """Create fallback rating when things go wrong"""
+        return ConditionRating(
+            score=5,
+            mode=mode,
+            description=f"Unable to fetch conditions. {error_msg}. Check back later or just fucking send it anyway."
         )
 
-        if not conditions:
-            return None
-
-        # Calculate score
-        if mode == "sup":
-            score = self.score_calculator.calculate_sup_score(conditions)
-        else:
-            score = self.score_calculator.calculate_parawing_score(conditions)
-
-        # Generate snarky description
-        description = self.llm_client.generate_description(
-            wind_speed=conditions.wind_speed_kts,
-            wind_direction=conditions.wind_direction,
-            wave_height=conditions.wave_height_ft,
-            swell_direction=conditions.swell_direction,
-            rating=score,
-            mode=mode
+    def _create_fallback_description(self, conditions, score: int, mode: str) -> str:
+        """Create fallback description when LLM fails"""
+        mode_name = "SUP foil" if mode == "sup" else "parawing"
+        return (
+            f"Conditions: {conditions.wind_speed_kts:.1f}kts {conditions.wind_direction}, "
+            f"{conditions.wave_height_ft:.1f}ft waves. Rating: {score}/10 for {mode_name}. "
+            f"LLM service is down so you're not getting the full snarky experience. "
+            f"Figure it out yourself, you're advanced right?"
         )
-
-        # Create rating
-        rating = ConditionRating(score=score, mode=mode, description=description)
-
-        # Cache it
-        self.cache.set_rating(mode, rating)
-
-        return rating
