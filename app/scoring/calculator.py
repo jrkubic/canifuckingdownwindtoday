@@ -66,3 +66,37 @@ class ScoreCalculator:
 
         # Clamp to 1-10
         return max(1, min(10, int(round(score))))
+
+    def calculate_parawing_score(self, conditions: WeatherConditions) -> int:
+        """
+        Calculate parawing (trashbagger) score (1-10) based on conditions
+
+        Parawing requires more consistent wind than SUP foil.
+        Below 15kt is essentially un-rideable.
+
+        Args:
+            conditions: Current weather conditions
+
+        Returns:
+            Score from 1-10
+        """
+        # Start with SUP score as baseline
+        score = float(self.calculate_sup_score(conditions))
+
+        # Apply stricter wind requirements for parawing
+        wind = conditions.wind_speed_kts
+        if wind < 15:
+            # Tank the score for insufficient wind
+            score = min(score, 4)
+            score -= (15 - wind) * 0.5  # Penalize heavily for low wind
+        elif wind >= 18:
+            # Bonus for strong consistent wind
+            score += 1
+
+        # Parawing is slightly more forgiving on wave height
+        # (can ride smaller bumps with strong wind)
+        if wind >= 18 and conditions.wave_height_ft >= 1.5:
+            score += 0.5
+
+        # Clamp to 1-10
+        return max(1, min(10, int(round(score))))

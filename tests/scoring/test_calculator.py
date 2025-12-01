@@ -146,3 +146,57 @@ def test_north_wind_is_as_good_as_south_wind():
 
     # Should be within 1 point of each other
     assert abs(north_score - south_score) <= 1
+
+
+# Parawing scoring tests
+
+def test_parawing_requires_more_wind_than_sup():
+    """Parawing needs consistent 15kt+ wind"""
+    # Conditions that are okay for SUP but bad for parawing
+    conditions = WeatherConditions(
+        wind_speed_kts=12.0,
+        wind_direction="S",  # Optimal direction
+        wave_height_ft=2.0,
+        swell_direction="S",
+        timestamp="2025-11-26T14:30:00"
+    )
+
+    calculator = ScoreCalculator()
+    sup_score = calculator.calculate_sup_score(conditions)
+    parawing_score = calculator.calculate_parawing_score(conditions)
+
+    # SUP should be rideable (5+), parawing should be poor (3 or less)
+    assert sup_score >= 5
+    assert parawing_score <= 3
+
+
+def test_parawing_good_conditions_with_strong_wind():
+    """Parawing with 18kt+ wind should score well"""
+    conditions = WeatherConditions(
+        wind_speed_kts=18.0,
+        wind_direction="S",  # Optimal direction
+        wave_height_ft=2.5,
+        swell_direction="S",
+        timestamp="2025-11-26T14:30:00"
+    )
+
+    calculator = ScoreCalculator()
+    score = calculator.calculate_parawing_score(conditions)
+
+    assert 7 <= score <= 10
+
+
+def test_parawing_marginal_wind_tanks_score():
+    """Parawing with <15kt wind should score poorly even with good waves"""
+    conditions = WeatherConditions(
+        wind_speed_kts=13.0,
+        wind_direction="S",  # Optimal direction
+        wave_height_ft=3.0,  # Good waves
+        swell_direction="S",
+        timestamp="2025-11-26T14:30:00"
+    )
+
+    calculator = ScoreCalculator()
+    score = calculator.calculate_parawing_score(conditions)
+
+    assert score <= 4
