@@ -16,7 +16,12 @@ class Config:
     LOCATION_LON = -80.1
 
     # Jupiter-specific optimal conditions
-    OPTIMAL_WIND_DIRECTIONS = ["E", "ESE", "SE"]  # East to Southeast
+    # Coast runs N-S, so wind parallel to coast is best for downwinding
+    OPTIMAL_WIND_DIRECTIONS = ["N", "S"]  # Parallel to coast - best
+    GOOD_WIND_DIRECTIONS = ["NE", "SE", "NW", "SW"]  # Diagonal - good
+    OK_WIND_DIRECTIONS = ["NNE", "SSE", "NNW", "SSW", "ENE", "ESE", "WNW", "WSW"]  # Acceptable
+    BAD_WIND_DIRECTIONS = ["E", "W"]  # Perpendicular to coast - bad
+
     OPTIMAL_WIND_MIN = 15  # knots
     OPTIMAL_WIND_MAX = 25  # knots
     OPTIMAL_WAVE_MIN = 2   # feet
