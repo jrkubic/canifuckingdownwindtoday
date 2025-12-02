@@ -177,8 +177,8 @@ COPY app/ ./app/
 # Cloud Run provides PORT env var, default to 8080
 ENV PORT=8080
 
-# Run the application
-CMD ["python", "app/main.py"]
+# Run the application (module-style for proper package resolution)
+CMD ["python", "-m", "app.main"]
 ```
 
 **Commit:** `feat: add Dockerfile for Cloud Run deployment`
@@ -244,6 +244,7 @@ if __name__ in {"__main__", "__mp_main__"}:
 PORT=9000 python app/main.py
 # Verify it runs on port 9000
 ```
+
 
 **Commit:** `feat: make app port configurable for Cloud Run`
 
