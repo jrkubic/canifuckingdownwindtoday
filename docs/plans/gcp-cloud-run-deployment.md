@@ -19,10 +19,12 @@ This plan sets up automated deployment from GitHub to Google Cloud Run. Every pu
 | **Phase 1: GCP Project Setup** | ✅ Complete | APIs enabled, Artifact Registry created, Secret Manager configured, WIF set up |
 | **Phase 2: Dockerfile** | ✅ Complete | Dockerfile created, .dockerignore updated, main.py configured, local Docker test passed |
 | **Phase 3: GitHub Actions** | ✅ Complete | Workflow created, secrets configured, pipeline tested and deploying successfully |
-| **Phase 4: Custom Domain** | ⏳ Pending | Cloud Run domain mapping + Cloudflare DNS |
-| **Phase 5: Documentation** | ⏳ Pending | README update |
+| **Phase 4: Custom Domain** | ✅ Complete | Domain verified, mappings created, DNS configured, SSL provisioned |
+| **Phase 5: Documentation** | ✅ Complete | README updated with deployment info |
 
-**Current deployment URL:** `https://canifuckingdownwindtoday-[hash].run.app` (GCP-provided)
+**Live URLs:**
+- https://canifuckingdownwindtoday.com
+- https://www.canifuckingdownwindtoday.com
 
 ---
 

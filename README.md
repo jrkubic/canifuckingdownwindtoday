@@ -111,27 +111,36 @@ tests/
 
 ## Deployment
 
-### Heroku
+This app automatically deploys to Google Cloud Run on every push to `main`.
+
+**Live URL:** https://canifuckingdownwindtoday.com
+
+### How It Works
+
+1. Push to `main` triggers GitHub Actions
+2. Tests run (`pytest`)
+3. Docker image builds and pushes to Artifact Registry
+4. Cloud Run deploys the new image
+5. Zero-downtime deployment complete
+
+### Manual Deployment (if needed)
 
 ```bash
-heroku create canifuckingdownwindtoday
-heroku config:set GEMINI_API_KEY=your_key_here
-git push heroku main
+# Build and push manually
+gcloud builds submit --tag us-east1-docker.pkg.dev/heylane-c6002/canifuckingdownwindtoday/canifuckingdownwindtoday:latest
+
+# Deploy manually
+gcloud run deploy canifuckingdownwindtoday \
+  --image=us-east1-docker.pkg.dev/heylane-c6002/canifuckingdownwindtoday/canifuckingdownwindtoday:latest \
+  --region=us-east1
 ```
 
-### Railway
+### Environment Variables
 
-1. Connect your GitHub repo to Railway
-2. Add environment variable: `GEMINI_API_KEY`
-3. Deploy
-
-### Fly.io
-
-```bash
-fly launch
-fly secrets set GEMINI_API_KEY=your_key_here
-fly deploy
-```
+| Variable | Source | Description |
+|----------|--------|-------------|
+| `GEMINI_API_KEY` | GCP Secret Manager | API key for Gemini LLM |
+| `PORT` | Cloud Run (automatic) | Port to listen on |
 
 ## License
 
