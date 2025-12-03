@@ -46,11 +46,17 @@ class NOAAClient:
         # Extract wave height from detailed forecast
         wave_height_ft = self._parse_wave_height(period.get("detailedForecast", ""))
 
+        # Parse actual swell direction from forecast text, fallback to wind direction
+        detailed_forecast = period.get("detailedForecast", "")
+        swell_direction = self._parse_swell_direction(detailed_forecast)
+        if swell_direction is None:
+            swell_direction = period["windDirection"]
+
         return WeatherConditions(
             wind_speed_kts=wind_speed_kts,
             wind_direction=period["windDirection"],
             wave_height_ft=wave_height_ft,
-            swell_direction=period["windDirection"],  # Approximate for now
+            swell_direction=swell_direction,
             timestamp=datetime.now().isoformat()
         )
 
