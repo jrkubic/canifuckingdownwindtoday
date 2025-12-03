@@ -1,7 +1,8 @@
 # ABOUTME: Data models for condition ratings and recommendations
 # ABOUTME: Provides structured representation of scores and foil setups
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Optional
 
 
 @dataclass
@@ -10,6 +11,7 @@ class ConditionRating:
     score: int  # 1-10
     mode: str   # "sup" or "parawing"
     description: str  # Snarky description from LLM
+    persona_id: Optional[str] = field(default=None)  # For tracking no-repeat rotation
 
     def __post_init__(self):
         if not 1 <= self.score <= 10:

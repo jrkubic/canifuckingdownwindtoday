@@ -90,9 +90,87 @@ def index():
     </style>
     """)
 
+    # JavaScript for persona tracking in localStorage
+    ui.add_head_html("""
+    <script>
+        function getLastPersona() {
+            return localStorage.getItem('lastPersonaId') || '';
+        }
+
+        function setLastPersona(personaId) {
+            localStorage.setItem('lastPersonaId', personaId);
+        }
+    </script>
+    """)
+
     with ui.column().classes('w-full items-center container'):
         # Title
         ui.html('<div class="title">CAN I FUCKING DOWNWIND TODAY</div>', sanitize=False)
+
+        # WHY button in top-right corner
+        with ui.element('div').style('position: absolute; top: 20px; right: 20px;'):
+            why_button = ui.label('WHY').style(
+                'font-size: 14px; cursor: pointer; text-decoration: underline;'
+            )
+
+        # WHY dialog/overlay
+        with ui.dialog() as why_dialog, ui.card().style('width: 90vw; max-width: 600px; max-height: 90vh; overflow-y: auto;'):
+            ui.label('WHY THIS SCORE?').style('font-size: 24px; font-weight: bold; margin-bottom: 16px;')
+
+            # Weather conditions section
+            conditions_container = ui.column().style('width: 100%; margin-bottom: 24px;')
+
+            ui.label('--- LIVE CAMS ---').style('font-size: 18px; font-weight: bold; margin: 16px 0;')
+
+            # Video streams section
+            with ui.column().style('width: 100%; gap: 16px;'):
+                # Palm Beach Marriott cam
+                ui.label('Palm Beach Marriott').style('font-size: 14px; font-weight: bold;')
+                ui.html('''
+                    <iframe src="https://video-monitoring.com/beachcams/palmbeachmarriott/stream.htm"
+                            style="width: 100%; height: 200px; border: 1px solid #000;"
+                            allow="autoplay" allowfullscreen></iframe>
+                ''')
+
+                # Jupiter Inlet cam (YouTube)
+                ui.label('Jupiter Inlet').style('font-size: 14px; font-weight: bold;')
+                ui.html('''
+                    <iframe src="https://www.youtube.com/embed/4y7kDbwBuh0?autoplay=1&mute=1"
+                            style="width: 100%; height: 200px; border: 1px solid #000;"
+                            allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                ''')
+
+                # Juno Beach cam (YouTube)
+                ui.label('Juno Beach').style('font-size: 14px; font-weight: bold;')
+                ui.html('''
+                    <iframe src="https://www.youtube.com/embed/1FYgBpkM7SA?autoplay=1&mute=1"
+                            style="width: 100%; height: 200px; border: 1px solid #000;"
+                            allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                ''')
+
+            ui.label('* Recommendations for 195lb/88kg rider').style(
+                'font-size: 12px; color: #666; margin-top: 16px; font-style: italic;'
+            )
+
+        def show_why():
+            """Populate and show the WHY dialog"""
+            conditions_container.clear()
+
+            weather = orchestrator.get_weather_context()
+            if weather:
+                with conditions_container:
+                    ui.label('--- CONDITIONS ---').style('font-size: 18px; font-weight: bold; margin-bottom: 8px;')
+                    ui.label(f"Wind: {weather['wind_speed']} {weather['wind_direction']}").style('font-size: 16px;')
+                    ui.label(f"Waves: {weather['wave_height']}").style('font-size: 16px;')
+                    ui.label(f"Swell: {weather['swell_direction']}").style('font-size: 16px;')
+                    ui.label(f"Data from: {weather['timestamp']}").style('font-size: 12px; color: #666; margin-top: 8px;')
+            else:
+                with conditions_container:
+                    ui.label('Weather data unavailable').style('font-size: 16px; color: #666;')
+
+            why_dialog.open()
+
+        why_button.on('click', show_why)
 
         # Toggle between SUP and Parawing
         with ui.row().classes('toggle-container'):
@@ -118,12 +196,22 @@ def index():
         cached_ratings = {'sup': None, 'parawing': None}
         cached_recommendations = None
 
-        def prefetch_all():
-            """Pre-fetch both ratings on page load for instant switching"""
+        async def prefetch_all():
+            """Fetch FRESH ratings on page load for both modes"""
             nonlocal cached_recommendations
             try:
-                cached_ratings['sup'] = orchestrator.get_sup_rating()
-                cached_ratings['parawing'] = orchestrator.get_parawing_rating()
+                # Get last persona from localStorage via JS
+                last_persona = await ui.run_javascript('getLastPersona()')
+                exclude_id = last_persona if last_persona else None
+
+                # Always generate fresh ratings on page load
+                cached_ratings['sup'] = orchestrator.get_fresh_rating('sup', exclude_persona_id=exclude_id)
+                cached_ratings['parawing'] = orchestrator.get_fresh_rating('parawing', exclude_persona_id=exclude_id)
+
+                # Store the new persona ID
+                if cached_ratings['sup'] and cached_ratings['sup'].persona_id:
+                    await ui.run_javascript(f"setLastPersona('{cached_ratings['sup'].persona_id}')")
+
                 cached_recommendations = orchestrator.get_foil_recommendations()
             except Exception as e:
                 print(f"Prefetch error: {e}")
@@ -148,7 +236,10 @@ def index():
 
                 # Update timestamp
                 from datetime import datetime
-                timestamp_label.content = f'<div class="timestamp">Last updated: {datetime.now().strftime("%I:%M %p")}</div>'
+                from zoneinfo import ZoneInfo
+
+                est_time = datetime.now(ZoneInfo("America/New_York"))
+                timestamp_label.content = f'<div class="timestamp">Last updated: {est_time.strftime("%I:%M %p")} EST</div>'
 
             except Exception as e:
                 print(f"UI update error: {e}")
@@ -159,8 +250,8 @@ def index():
         toggle.on_value_change(lambda: update_display())
 
         # Initial load: prefetch all data then update display
-        def initial_load():
-            prefetch_all()
+        async def initial_load():
+            await prefetch_all()
             update_display()
 
         ui.timer(0.1, initial_load, once=True)

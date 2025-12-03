@@ -32,3 +32,6 @@ class Config:
 
     # Caching
     CACHE_REFRESH_HOURS = int(os.getenv("CACHE_REFRESH_HOURS", "2"))
+
+    # Debug mode
+    DEBUG = os.getenv("DEBUG", "false").lower() == "true"

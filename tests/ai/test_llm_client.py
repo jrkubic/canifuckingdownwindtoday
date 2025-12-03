@@ -45,3 +45,31 @@ def test_llm_client_handles_api_failure():
         # Should return fallback message on failure
         assert result is not None
         assert "error" in result.lower() or "unavailable" in result.lower()
+
+
+def test_llm_client_accepts_persona():
+    """LLMClient should use persona in prompt when provided"""
+    mock_response = Mock()
+    mock_response.text = "Test response"
+
+    with patch('google.generativeai.GenerativeModel') as mock_gemini:
+        mock_model = Mock()
+        mock_gemini.return_value = mock_model
+        mock_model.generate_content.return_value = mock_response
+
+        client = LLMClient(api_key="test_key")
+        from app.ai.personas import PERSONAS
+
+        result = client.generate_description(
+            wind_speed=18.0,
+            wind_direction="S",
+            wave_height=3.0,
+            swell_direction="S",
+            rating=7,
+            mode="sup",
+            persona=PERSONAS[0]  # Pass persona
+        )
+
+        # Verify persona prompt was included in the call
+        call_args = mock_model.generate_content.call_args[0][0]
+        assert PERSONAS[0]["prompt_style"] in call_args or PERSONAS[0]["name"] in call_args
