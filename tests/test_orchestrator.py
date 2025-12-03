@@ -80,3 +80,34 @@ def test_orchestrator_uses_persona():
         assert 'persona' in call_kwargs
         assert call_kwargs['persona'] is not None
         assert 'id' in call_kwargs['persona']
+
+
+def test_orchestrator_get_fresh_rating_bypasses_cache():
+    """get_fresh_rating should bypass cache and generate new"""
+    mock_conditions = WeatherConditions(
+        wind_speed_kts=18.0,
+        wind_direction="S",
+        wave_height_ft=3.0,
+        swell_direction="S",
+        timestamp="2025-11-26T14:30:00"
+    )
+
+    with patch('app.orchestrator.WeatherFetcher') as mock_fetcher, \
+         patch('app.orchestrator.ScoreCalculator') as mock_calculator, \
+         patch('app.orchestrator.LLMClient') as mock_llm, \
+         patch('app.orchestrator.FoilRecommender'):
+
+        mock_fetcher.return_value.fetch_current_conditions.return_value = mock_conditions
+        mock_calculator.return_value.calculate_sup_score.return_value = 7
+        mock_llm.return_value.generate_description.return_value = "Fresh snark"
+
+        orchestrator = AppOrchestrator(api_key="test_key")
+
+        # First call with normal method (caches it)
+        orchestrator.get_sup_rating()
+        first_call_count = mock_llm.return_value.generate_description.call_count
+
+        # Second call with get_fresh should still call LLM
+        orchestrator.get_fresh_rating("sup")
+
+        assert mock_llm.return_value.generate_description.call_count > first_call_count

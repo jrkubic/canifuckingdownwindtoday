@@ -39,13 +39,14 @@ def test_debug_log_outputs_when_enabled():
         from importlib import reload
         from app import config
         reload(config)
-        from app.debug import debug_log
+        from app import debug
+        reload(debug)
         import io
         import sys
 
         captured = io.StringIO()
         sys.stdout = captured
-        debug_log("test message")
+        debug.debug_log("test message")
         sys.stdout = sys.__stdout__
 
         assert "test message" in captured.getvalue()

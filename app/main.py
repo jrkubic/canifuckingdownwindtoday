@@ -119,11 +119,12 @@ def index():
         cached_recommendations = None
 
         def prefetch_all():
-            """Pre-fetch both ratings on page load for instant switching"""
+            """Fetch FRESH ratings on page load for both modes"""
             nonlocal cached_recommendations
             try:
-                cached_ratings['sup'] = orchestrator.get_sup_rating()
-                cached_ratings['parawing'] = orchestrator.get_parawing_rating()
+                # Always generate fresh ratings on page load
+                cached_ratings['sup'] = orchestrator.get_fresh_rating('sup')
+                cached_ratings['parawing'] = orchestrator.get_fresh_rating('parawing')
                 cached_recommendations = orchestrator.get_foil_recommendations()
             except Exception as e:
                 print(f"Prefetch error: {e}")

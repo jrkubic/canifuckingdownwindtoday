@@ -52,6 +52,18 @@ class AppOrchestrator:
         # Fetch fresh data
         return self._generate_rating("parawing")
 
+    def get_fresh_rating(self, mode: str) -> Optional[ConditionRating]:
+        """
+        Get fresh rating, bypassing cache. Used for page refresh.
+
+        Args:
+            mode: "sup" or "parawing"
+
+        Returns:
+            ConditionRating or None if weather unavailable
+        """
+        return self._generate_rating(mode)
+
     def get_foil_recommendations(self) -> dict:
         """
         Get foil recommendations for current conditions
