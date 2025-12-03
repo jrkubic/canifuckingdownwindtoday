@@ -37,6 +37,12 @@ async def index():
             flex-direction: column;
             align-items: center;
             padding: 2vh 4vw;
+            width: 100%;
+            margin: 0 auto;
+        }
+        /* Override NiceGUI's default column alignment */
+        .nicegui-column {
+            align-items: center !important;
         }
         .title {
             font-size: clamp(24px, 6vw, 48px);
@@ -114,16 +120,16 @@ async def index():
             )
 
         # WHY dialog/overlay
-        with ui.dialog() as why_dialog, ui.card().style('width: 90vw; max-width: 600px; max-height: 90vh; overflow-y: auto;'):
+        with ui.dialog() as why_dialog, ui.card().style('width: 90vw; max-width: 600px; max-height: 90vh; overflow-y: auto; text-align: center;'):
             ui.label('WHY THIS SCORE?').style('font-size: 24px; font-weight: bold; margin-bottom: 16px;')
 
             # Weather conditions section
-            conditions_container = ui.column().style('width: 100%; margin-bottom: 24px;')
+            conditions_container = ui.column().style('width: 100%; margin-bottom: 24px; align-items: center;')
 
             ui.label('--- LIVE CAMS ---').style('font-size: 18px; font-weight: bold; margin: 16px 0;')
 
             # Video streams section
-            with ui.column().style('width: 100%; gap: 16px;'):
+            with ui.column().style('width: 100%; gap: 16px; align-items: center;'):
                 # Palm Beach Marriott cam
                 ui.label('Palm Beach Marriott').style('font-size: 14px; font-weight: bold;')
                 ui.html('''
