@@ -4,6 +4,7 @@
 from nicegui import ui
 from app.config import Config
 from app.orchestrator import AppOrchestrator
+from app.ui.crayon_graph import CrayonGraph
 
 
 # Initialize orchestrator
@@ -210,6 +211,14 @@ async def index():
             weather = orchestrator.get_weather_context()
             if weather:
                 with conditions_container:
+                    # Render crayon graph
+                    graph = CrayonGraph()
+                    wind_dir = weather.get('wind_direction', 'N')
+                    svg = graph.render(wind_direction=wind_dir)
+
+                    # Display graph
+                    ui.html(svg, sanitize=False).style('width: 100%; display: flex; justify-content: center; margin: 20px 0;')
+
                     ui.label('--- CONDITIONS ---').style('font-size: 18px; font-weight: bold; margin-bottom: 8px;')
                     ui.label(f"Wind: {weather['wind_speed']} {weather['wind_direction']}").style('font-size: 16px;')
                     ui.label(f"Waves: {weather['wave_height']}").style('font-size: 16px;')
