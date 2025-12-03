@@ -149,7 +149,10 @@ def index():
 
                 # Update timestamp
                 from datetime import datetime
-                timestamp_label.content = f'<div class="timestamp">Last updated: {datetime.now().strftime("%I:%M %p")}</div>'
+                from zoneinfo import ZoneInfo
+
+                est_time = datetime.now(ZoneInfo("America/New_York"))
+                timestamp_label.content = f'<div class="timestamp">Last updated: {est_time.strftime("%I:%M %p")} EST</div>'
 
             except Exception as e:
                 print(f"UI update error: {e}")
