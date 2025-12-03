@@ -91,6 +91,30 @@ class AppOrchestrator:
             "kt": self.foil_recommender.recommend_kt(score=score)
         }
 
+    def get_weather_context(self) -> Optional[dict]:
+        """
+        Get current weather conditions formatted for display.
+
+        Returns:
+            Dict with wind_speed, wind_direction, wave_height, swell_direction, timestamp
+            or None if weather unavailable
+        """
+        conditions = self.weather_fetcher.fetch_current_conditions(
+            Config.LOCATION_LAT,
+            Config.LOCATION_LON
+        )
+
+        if not conditions:
+            return None
+
+        return {
+            "wind_speed": f"{conditions.wind_speed_kts:.1f} kts",
+            "wind_direction": conditions.wind_direction,
+            "wave_height": f"{conditions.wave_height_ft:.1f} ft",
+            "swell_direction": conditions.swell_direction,
+            "timestamp": conditions.timestamp
+        }
+
     def _generate_rating(self, mode: str) -> Optional[ConditionRating]:
         """Generate fresh rating for given mode"""
         try:

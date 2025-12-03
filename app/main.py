@@ -94,6 +94,70 @@ def index():
         # Title
         ui.html('<div class="title">CAN I FUCKING DOWNWIND TODAY</div>', sanitize=False)
 
+        # WHY button in top-right corner
+        with ui.element('div').style('position: absolute; top: 20px; right: 20px;'):
+            why_button = ui.label('WHY').style(
+                'font-size: 14px; cursor: pointer; text-decoration: underline;'
+            )
+
+        # WHY dialog/overlay
+        with ui.dialog() as why_dialog, ui.card().style('width: 90vw; max-width: 600px; max-height: 90vh; overflow-y: auto;'):
+            ui.label('WHY THIS SCORE?').style('font-size: 24px; font-weight: bold; margin-bottom: 16px;')
+
+            # Weather conditions section
+            conditions_container = ui.column().style('width: 100%; margin-bottom: 24px;')
+
+            ui.label('--- LIVE CAMS ---').style('font-size: 18px; font-weight: bold; margin: 16px 0;')
+
+            # Video streams section
+            with ui.column().style('width: 100%; gap: 16px;'):
+                # Palm Beach Marriott cam
+                ui.label('Palm Beach Marriott').style('font-size: 14px; font-weight: bold;')
+                ui.html('''
+                    <iframe src="https://video-monitoring.com/beachcams/palmbeachmarriott/stream.htm"
+                            style="width: 100%; height: 200px; border: 1px solid #000;"
+                            allow="autoplay" allowfullscreen></iframe>
+                ''')
+
+                # Jupiter Inlet cam (YouTube)
+                ui.label('Jupiter Inlet').style('font-size: 14px; font-weight: bold;')
+                ui.html('''
+                    <iframe src="https://www.youtube.com/embed/4y7kDbwBuh0?autoplay=1&mute=1"
+                            style="width: 100%; height: 200px; border: 1px solid #000;"
+                            allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                ''')
+
+                # Juno Beach cam (YouTube)
+                ui.label('Juno Beach').style('font-size: 14px; font-weight: bold;')
+                ui.html('''
+                    <iframe src="https://www.youtube.com/embed/1FYgBpkM7SA?autoplay=1&mute=1"
+                            style="width: 100%; height: 200px; border: 1px solid #000;"
+                            allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                ''')
+
+            ui.label('* Recommendations for 195lb/88kg rider').style(
+                'font-size: 12px; color: #666; margin-top: 16px; font-style: italic;'
+            )
+
+        def show_why():
+            """Populate and show the WHY dialog"""
+            conditions_container.clear()
+
+            weather = orchestrator.get_weather_context()
+            if weather:
+                with conditions_container:
+                    ui.label('--- CONDITIONS ---').style('font-size: 18px; font-weight: bold; margin-bottom: 8px;')
+                    ui.label(f"Wind: {weather['wind_speed']} {weather['wind_direction']}").style('font-size: 16px;')
+                    ui.label(f"Waves: {weather['wave_height']}").style('font-size: 16px;')
+                    ui.label(f"Swell: {weather['swell_direction']}").style('font-size: 16px;')
+            else:
+                with conditions_container:
+                    ui.label('Weather data unavailable').style('font-size: 16px; color: #666;')
+
+            why_dialog.open()
+
+        why_button.on('click', show_why)
+
         # Toggle between SUP and Parawing
         with ui.row().classes('toggle-container'):
             toggle = ui.toggle(
