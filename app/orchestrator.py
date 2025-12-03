@@ -52,17 +52,18 @@ class AppOrchestrator:
         # Fetch fresh data
         return self._generate_rating("parawing")
 
-    def get_fresh_rating(self, mode: str) -> Optional[ConditionRating]:
+    def get_fresh_rating(self, mode: str, exclude_persona_id: Optional[str] = None) -> Optional[ConditionRating]:
         """
         Get fresh rating, bypassing cache. Used for page refresh.
 
         Args:
             mode: "sup" or "parawing"
+            exclude_persona_id: Persona ID to exclude (for no-repeat rotation)
 
         Returns:
             ConditionRating or None if weather unavailable
         """
-        return self._generate_rating(mode)
+        return self._generate_rating(mode, exclude_persona_id=exclude_persona_id)
 
     def get_foil_recommendations(self, score: Optional[int] = None) -> dict:
         """
@@ -115,7 +116,7 @@ class AppOrchestrator:
             "timestamp": conditions.timestamp
         }
 
-    def _generate_rating(self, mode: str) -> Optional[ConditionRating]:
+    def _generate_rating(self, mode: str, exclude_persona_id: Optional[str] = None) -> Optional[ConditionRating]:
         """Generate fresh rating for given mode"""
         try:
             # Fetch weather
@@ -133,8 +134,8 @@ class AppOrchestrator:
             else:
                 score = self.score_calculator.calculate_parawing_score(conditions)
 
-            # Get random persona
-            persona = get_random_persona()
+            # Get random persona (excluding last used if specified)
+            persona = get_random_persona(exclude_id=exclude_persona_id)
 
             # Generate snarky description with persona
             try:
@@ -151,8 +152,13 @@ class AppOrchestrator:
                 print(f"LLM generation failed: {e}")
                 description = self._create_fallback_description(conditions, score, mode)
 
-            # Create rating
-            rating = ConditionRating(score=score, mode=mode, description=description)
+            # Create rating with persona info
+            rating = ConditionRating(
+                score=score,
+                mode=mode,
+                description=description,
+                persona_id=persona["id"]
+            )
 
             # Cache it
             self.cache.set_rating(mode, rating)

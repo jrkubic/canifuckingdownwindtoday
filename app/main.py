@@ -90,6 +90,19 @@ def index():
     </style>
     """)
 
+    # JavaScript for persona tracking in localStorage
+    ui.add_head_html("""
+    <script>
+        function getLastPersona() {
+            return localStorage.getItem('lastPersonaId') || '';
+        }
+
+        function setLastPersona(personaId) {
+            localStorage.setItem('lastPersonaId', personaId);
+        }
+    </script>
+    """)
+
     with ui.column().classes('w-full items-center container'):
         # Title
         ui.html('<div class="title">CAN I FUCKING DOWNWIND TODAY</div>', sanitize=False)
@@ -183,13 +196,22 @@ def index():
         cached_ratings = {'sup': None, 'parawing': None}
         cached_recommendations = None
 
-        def prefetch_all():
+        async def prefetch_all():
             """Fetch FRESH ratings on page load for both modes"""
             nonlocal cached_recommendations
             try:
+                # Get last persona from localStorage via JS
+                last_persona = await ui.run_javascript('getLastPersona()')
+                exclude_id = last_persona if last_persona else None
+
                 # Always generate fresh ratings on page load
-                cached_ratings['sup'] = orchestrator.get_fresh_rating('sup')
-                cached_ratings['parawing'] = orchestrator.get_fresh_rating('parawing')
+                cached_ratings['sup'] = orchestrator.get_fresh_rating('sup', exclude_persona_id=exclude_id)
+                cached_ratings['parawing'] = orchestrator.get_fresh_rating('parawing', exclude_persona_id=exclude_id)
+
+                # Store the new persona ID
+                if cached_ratings['sup'] and cached_ratings['sup'].persona_id:
+                    await ui.run_javascript(f"setLastPersona('{cached_ratings['sup'].persona_id}')")
+
                 cached_recommendations = orchestrator.get_foil_recommendations()
             except Exception as e:
                 print(f"Prefetch error: {e}")
@@ -228,8 +250,8 @@ def index():
         toggle.on_value_change(lambda: update_display())
 
         # Initial load: prefetch all data then update display
-        def initial_load():
-            prefetch_all()
+        async def initial_load():
+            await prefetch_all()
             update_display()
 
         ui.timer(0.1, initial_load, once=True)
