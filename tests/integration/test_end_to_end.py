@@ -96,4 +96,4 @@ def test_foil_recommendations_flow():
 
         assert "code" in recommendations
         assert "kt" in recommendations
-        assert "960r" in recommendations["code"] or "1250r" in recommendations["code"]
+        assert "770R" in recommendations["code"] or "960R" in recommendations["code"] or "1250R" in recommendations["code"]

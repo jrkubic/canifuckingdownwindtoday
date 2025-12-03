@@ -64,24 +64,31 @@ class AppOrchestrator:
         """
         return self._generate_rating(mode)
 
-    def get_foil_recommendations(self) -> dict:
+    def get_foil_recommendations(self, score: Optional[int] = None) -> dict:
         """
-        Get foil recommendations for current conditions
+        Get foil recommendations for current conditions.
+
+        Args:
+            score: Optional score to use (if not provided, fetches weather)
 
         Returns:
             Dict with CODE and KT recommendations
         """
-        conditions = self.weather_fetcher.fetch_current_conditions(
-            Config.LOCATION_LAT,
-            Config.LOCATION_LON
-        )
+        if score is None:
+            # Fetch conditions to calculate score
+            conditions = self.weather_fetcher.fetch_current_conditions(
+                Config.LOCATION_LAT,
+                Config.LOCATION_LON
+            )
 
-        if not conditions:
-            return {"code": "Weather unavailable", "kt": "Weather unavailable"}
+            if not conditions:
+                return {"code": "Weather unavailable", "kt": "Weather unavailable"}
+
+            score = self.score_calculator.calculate_sup_score(conditions)
 
         return {
-            "code": self.foil_recommender.recommend_code(conditions),
-            "kt": self.foil_recommender.recommend_kt(conditions)
+            "code": self.foil_recommender.recommend_code(score=score),
+            "kt": self.foil_recommender.recommend_kt(score=score)
         }
 
     def _generate_rating(self, mode: str) -> Optional[ConditionRating]:
