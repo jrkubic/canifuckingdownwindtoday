@@ -13,7 +13,7 @@
 - ✅ All 94 tests passing
 
 ### Known Issues (Future Work)
-- [ ] WHY panel titles ("WHY THIS SCORE?" and "--- LIVE CAMS ---") are left-aligned instead of centered
+- [x] ~~WHY panel titles ("WHY THIS SCORE?" and "--- LIVE CAMS ---") are left-aligned instead of centered~~ - Fixed!
 
 ---
 

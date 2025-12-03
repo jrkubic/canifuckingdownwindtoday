@@ -167,12 +167,12 @@ async def index():
 
         # WHY dialog/overlay
         with ui.dialog() as why_dialog, ui.card().style('width: 90vw; max-width: 600px; max-height: 90vh; overflow-y: auto; text-align: center;'):
-            ui.label('WHY THIS SCORE?').style('font-size: 24px; font-weight: bold; margin-bottom: 16px;')
+            ui.label('WHY THIS SCORE?').style('font-size: 24px; font-weight: bold; margin-bottom: 16px; width: 100%; text-align: center;')
 
             # Weather conditions section
             conditions_container = ui.column().style('width: 100%; margin-bottom: 24px; align-items: center;')
 
-            ui.label('--- LIVE CAMS ---').style('font-size: 18px; font-weight: bold; margin: 16px 0;')
+            ui.label('--- LIVE CAMS ---').style('font-size: 18px; font-weight: bold; margin: 16px 0; width: 100%; text-align: center;')
 
             # Video streams section
             with ui.column().style('width: 100%; gap: 16px; align-items: center;'):
