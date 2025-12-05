@@ -50,10 +50,13 @@ CACHE_REFRESH_HOURS=2
 ```
 
 ### Running the App
-
-```bash
+<!-- ```bash
 python app/main.py
+``` -->
+```bash
+python -m app.main
 ```
+
 
 Visit http://localhost:8080
 
